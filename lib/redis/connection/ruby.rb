@@ -267,7 +267,12 @@ class Redis
           ssl_sock = new(tcp_sock, ctx)
           ssl_sock.hostname = host
           ssl_sock.connect
-          ssl_sock.post_connection_check(host)
+
+          # Make this client work with heroku-redis. This is
+          # borrowed from: https://github.com/redis/redis-rb/pull/678
+          unless ctx.verify_mode == OpenSSL::SSL::VERIFY_NONE
+            ssl_sock.post_connection_check(host)
+          end
 
           ssl_sock
         end
